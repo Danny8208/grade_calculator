@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "grade-calculator"
+version = "0.1.0"
+description = ""
+authors = ["Danny8208 <danny@rollingkittens.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "grade_calculator"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+google-api-python-client = "^2.66.0"
+google-auth-httplib2 = "^0.1.0"
+google-auth-oauthlib = "^0.7.1"
+flask = "^2.2.2"
+pymongo = "^4.3.3"
+python-dotenv = "^0.21.0"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.10.0"
+isort = "^5.10.1"
+pylint = "^2.15.6"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
