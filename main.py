@@ -1,7 +1,9 @@
+import json
 import sys
 
 from dotenv import dotenv_values
 from flask import Flask, redirect, request
+from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.errors import HttpError
@@ -35,16 +37,28 @@ def precheck():
 
 def check_credential(**kwargs):
     cred = kwargs.get("credential")
-    json = kwargs.get("json")
+    json_string = kwargs.get("json")
     credential = (
-        cred if (cred is not None) else Credentials.from_authorized_user_info(info=json)
+        cred if (cred is not None)
+        else Credentials.from_authorized_user_info(info=json.loads(json_string))
     )
-    if cred.valid:
+    if credential.valid:
         credential_collection.delete_many({})
         credential_collection.insert_one({"token": credential.to_json()})
         return True
+    elif credential.expired and credential.refresh_token:
+        credential.refresh(Request())
+        return check_credential(credential=credential)
     else:
         return False
+
+
+def get_credential():
+    token = credential_collection.find_one({})["token"]
+    if check_credential(json=token):
+        return Credentials.from_authorized_user_info(
+            info=json.loads(token), scopes=SCOPES
+        )
 
 
 @app.route("/login")
