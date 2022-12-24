@@ -67,7 +67,13 @@ def build_service():
     return build(serviceName="classroom", version="v1", credentials=get_credential())
 
 
-def get_courses():
+def get_courses(**kwargs):
+    course_id = kwargs.get("id")
+    if course_id:
+        try:
+            return build_service().courses().get(id=course_id).execute()
+        except HttpError:
+            return "invalid course id"
     return build_service().courses().list().execute().get("courses", [])
 
 
@@ -100,6 +106,9 @@ def callback():
 
 @app.route("/api/get_courses")
 def api_get_courses():
+    course_id = dict(request.args).get("id")
+    if course_id is not None:
+        return get_courses(id=course_id)
     return jsonify(get_courses())
 
 
